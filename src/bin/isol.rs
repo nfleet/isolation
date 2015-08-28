@@ -21,7 +21,7 @@ fn usage(opts: Options) {
 
 fn main() {
     let mut opts = Options::new();
-    opts.optflag("a", "all", "print all nodes (including ones of the largest component)");
+    opts.optflag("a", "all", "include the nodes of the largest component (prints all nodes of the graph)");
     opts.optflag("h", "help", "show this help");
     let argv: Vec<String> = env::args().collect();
     let matches = match opts.parse(&argv[1..]) {
