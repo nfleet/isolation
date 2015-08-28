@@ -1,7 +1,7 @@
 [package]
 name = "isolation"
 version = "0.1.0"
-authors = ["ane <ane@iki.fi>"]
+authors = ["NFleet Oy info@nfleet.fi"]
 
 [dependencies]
 petgraph = "0.1.11"
