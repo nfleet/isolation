@@ -87,8 +87,12 @@ pub fn compute<R>(source: &mut BufReader<R>) -> Vec<Vec<u64>> where R: Read {
 
 /// Serializes the contents of the components into a stream where each node is
 /// separated by `delim`. Panics if target cannot be opened.
-pub fn serialize<W>(comps: Vec<Vec<u64>>, target: &mut BufWriter<W>, delim: u8) where W: Write {
-    for comp in comps[1..].iter() {
+pub fn serialize<W>(comps: Vec<Vec<u64>>, target: &mut BufWriter<W>, delim: u8, include_biggest: bool) where W: Write {
+    let sccs = match include_biggest {
+        true => comps.iter(),
+        false => comps[1..].iter(),
+    };
+    for comp in sccs {
         for node in comp {
             target.write(node.to_string().as_bytes()).unwrap();
             target.write(&[delim]).unwrap();

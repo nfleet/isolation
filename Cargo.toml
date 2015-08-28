@@ -6,6 +6,7 @@ authors = ["ane <ane@iki.fi>"]
 [dependencies]
 petgraph = "0.1.11"
 scan_fmt = "0.1.1"
+getopts = "0.2"
 
 [lib]
 name = "isolation"
