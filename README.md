@@ -1,4 +1,4 @@
-# Isolation 
+# Isolation [![Build Status](https://travis-ci.org/nfleet/isolation.svg?branch=master)](https://travis-ci.org/nfleet/isolation) 
 
 **Isolation** computes strongly connected components of a specified directed graph. 
 
