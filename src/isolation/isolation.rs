@@ -54,7 +54,7 @@ fn load_graph<R>(source: &mut BufReader<R>) -> (Graph<u64, ()>, HashMap<u64, Nod
 /// Computes the strongly connected components. Takes a graph stream as an
 /// input where the format is as follows:
 /// 
-/// ```
+/// ```ignore
 /// num_edges
 /// id1 id2 oneway
 /// id1 id2 oneway
