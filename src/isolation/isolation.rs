@@ -28,15 +28,8 @@ fn load_graph<R>(source: &mut BufReader<R>) -> (Graph<u64, ()>, HashMap<u64, Nod
         // adding a node erases the index, so for each unique index we need to keep
         // a map of the corresponding node <-> internal node id mappings. shitty,
         // but it seems to work.
-        if !nodes.contains_key(&start) {
-            let sn = graph.add_node(0);
-            nodes.insert(start, sn);
-        }
-
-        if !nodes.contains_key(&end) {
-            let en = graph.add_node(0);
-            nodes.insert(end, en);
-        }
+        nodes.entry(start).or_insert_with(|| { graph.add_node(0) });
+        nodes.entry(end).or_insert_with(|| { graph.add_node(0) });
 
         let si = nodes.get(&start).unwrap();
         let ei = nodes.get(&end).unwrap();
