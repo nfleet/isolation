@@ -1,7 +1,25 @@
 language: rust
-after_success: |
-    cargo doc \
-    && echo '<meta http-equiv=refresh content=0;url=isolation/index.html>' > target/doc/index.html && \
-    sudo pip install ghp-import && \
-    ghp-import -n target/doc && \
-    git push -qf https://${TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git gh-pages
+addons:
+  apt:
+    packages:
+    - libcurl4-openssl-dev
+    - libelf-dev
+    - libdw-dev
+rust:
+  - stable
+before_script:
+  - |
+      pip install 'travis-cargo<0.2' --user &&
+      export PATH=$HOME/.local/bin:$PATH
+script:
+  - |
+      travis-cargo build &&
+      travis-cargo test &&
+      travis-cargo bench &&
+      travis-cargo --only stable doc
+after_success:
+  - travis-cargo --only stable doc-upload
+  - travis-cargo coveralls --no-sudo
+env:
+  global:
+    secure: BrR8gchrW9rT47KXyhFwzJ9E+uHdfL/exM9SYdo8/iTeD9g48Uj+QEFpeAI+r/6NYdScGVsrUAkcHlOMxmBNvNlup+qJQLDd26nLSzzNCWvHcgqndBlsyRH28LuhzKxjRuVOa9NoMOwFJdgW9rC5G9s4vzfbv6nHVwLama7TZdZW52sS4CsPEI/s5rdTrrSLy27595qRJrysKAtFvgAum3S0W1bzizuo4sODKn8RWzuf2tLbwcxzQVo6x7iSZSE6Rx0T6iWpjg5pXrzg3kjDiXuOV+EsVVf3HMcrVlyL3lii05FotInFNDeoKRRsmY9perg4ZK4mpBTM6pA/t+h6O52q5PqZB5I6VYfxgZm7KZ+ewDOYpKdg671dskcFPpEABJSVRk5cxmvP4QCI5xMM0SfnG11vigR0BrNwgnaBc4xMyRqxSP4Q8VbEx66dYC4svl+YyA3utbT2dBxcPpoSImFBURnUY7yvdckJCxfvbXAJCJek4ixoVk9aNjB6z8YsSr47f6DxI7MzeMPsEMOE3uSv12QUiDnEG8ifUjgMy3qJg5FPaVujQmP2F+rXPxvYAGJxmN33IPbIhSHe0PfsvozBSxdmIDh2HpNki7Sa/pwmmFErL/ITBjqeraQcIf5WtTaKq3D62PiBPN4LjkCJmJuo+FGb3hE7sbKgiAaFY0w=
