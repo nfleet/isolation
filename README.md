@@ -1,4 +1,4 @@
-# Isolation [![Build Status](https://travis-ci.org/nfleet/isolation.svg?branch=master)](https://travis-ci.org/nfleet/isolation) 
+# Isolation [![Build Status](https://travis-ci.org/nfleet/isolation.svg?branch=master)](https://travis-ci.org/nfleet/isolation) [![Coverage Status](https://coveralls.io/repos/nfleet/isolation/badge.svg?branch=master&service=github)](https://coveralls.io/github/nfleet/isolation?branch=master)
 
 **Isolation** computes strongly connected components of a specified directed graph. 
 
