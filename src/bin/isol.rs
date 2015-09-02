@@ -11,13 +11,10 @@ use std::process;
 use isolation::isolation::{compute, serialize};
 use std::env;
 use std::fs::File;
-use std::io::{BufReader, BufWriter, stdout, stdin};
+use std::io::{BufReader, BufWriter, Write, Read, stdout, stdin, stderr};
 use getopts::Options;
 
-fn usage(opts: Options) {
-    let brief = format!("Usage: isol [options] <SOURCE> <<TARGET>>");
-    print!("{}", opts.usage(&brief));
-}
+static USAGE: &'static str = "Usage: isol [options] <SOURCE> <<TARGET>>";
 
 fn main() {
     let mut opts = Options::new();
@@ -30,36 +27,39 @@ fn main() {
     };
 
     if matches.opt_present("h") {
-        usage(opts);
+        println!("{}", opts.usage(USAGE));
         process::exit(1);
     }
 
     let print_biggest = matches.opt_present("a");
     let args = matches.free;
 
-    match args.len() {
+    let (input, output): (Box<Read>, Box<Write>) = match args.len() {
         2 => {
             let i = File::open(&args[0]).unwrap();
             let f = File::create(&args[1]).unwrap();
-            let mut input = BufReader::new(i);
-            let mut file = BufWriter::new(&f);
-            let comps = compute(&mut input);
-            serialize(comps, &mut file, b'\n', print_biggest);
+            (Box::new(i), Box::new(f))
         },
         1 => {
             let i = File::open(&args[0]).unwrap();
-            let mut input = BufReader::new(i);
-            let comps = compute(&mut input);
-            serialize(comps, &mut BufWriter::new(stdout()), b'\n', print_biggest);
+            (Box::new(i), Box::new(stdout()))
         },
         0 => {
-            let comps = compute(&mut BufReader::new(stdin()));
-            serialize(comps, &mut BufWriter::new(stdout()), b'\n', print_biggest);
+            (Box::new(stdin()), Box::new(stdout()))
         },
         _ => {
-            usage(opts);
+            writeln!(&mut stderr(), "error: too many arguments provided").unwrap();
+            println!("{}", opts.usage(USAGE));
             process::exit(1);
         }
-    }
+    };
 
+    let mut source = BufReader::new(input);
+    let mut target = BufWriter::new(output);
+    compute(&mut source, |comp, i| {
+        if !print_biggest && i == 0 {
+            return;
+        }
+        serialize(comp, &mut target, b'\n');
+    });
 }

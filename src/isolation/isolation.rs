@@ -58,8 +58,9 @@ fn load_graph<R>(source: &mut BufReader<R>) -> (Graph<u64, ()>, HashMap<u64, Nod
 /// where `id1` is the start of the edge, `id2` is the end of the edge,
 /// and `oneway` is **0** if the edge is bidirectional (id2->id1 is permitted)
 /// or **1** if `id2` -> `id1` is not allowed. `num_edges` is the number of edges in the
-/// file.
-pub fn compute<R>(source: &mut BufReader<R>) -> Vec<Vec<u64>> where R: Read {
+/// file. **output** is a function that can consume the component vectors and the index
+/// of the current component vector.
+pub fn compute<R, F>(source: &mut BufReader<R>, mut output: F) where R: Read, F: FnMut(Vec<u64>, usize) {
     let (graph, nodes) = load_graph(source);
     writeln!(&mut stderr(), "Graph loaded. Computing SCCs.").unwrap();
     let mut comps: Vec<Vec<_>> = scc(&graph);
@@ -70,25 +71,17 @@ pub fn compute<R>(source: &mut BufReader<R>) -> Vec<Vec<u64>> where R: Read {
     comps.reverse();
     // find out the real nodes
     let inverse_nodes: HashMap<_,_> = nodes.into_iter().map(|(k, v)| (v, k)).collect();
-    let mut real_comps = Vec::new();
-    for comp in comps {
+    for (i, comp) in comps.iter().enumerate() {
         let real_nodes = comp.into_iter().map(|n| *inverse_nodes.get(&n).unwrap()).collect();
-        real_comps.push(real_nodes);
+        output(real_nodes, i);
     }
-    real_comps
 }
 
-/// Serializes the contents of the components into a stream where each node is
+/// Serializes the contents of the component into a stream where each node is
 /// separated by `delim`. Panics if target cannot be opened.
-pub fn serialize<W>(comps: Vec<Vec<u64>>, target: &mut BufWriter<W>, delim: u8, include_biggest: bool) where W: Write {
-    let sccs = match include_biggest {
-        true => comps.iter(),
-        false => comps[1..].iter(),
-    };
-    for comp in sccs {
-        for node in comp {
-            target.write(node.to_string().as_bytes()).unwrap();
-            target.write(&[delim]).unwrap();
-        }
+pub fn serialize<W>(comp: Vec<u64>, target: &mut BufWriter<W>, delim: u8) where W: Write {
+    for node in comp {
+        target.write(node.to_string().as_bytes()).unwrap();
+        target.write(&[delim]).unwrap();
     }
 }
