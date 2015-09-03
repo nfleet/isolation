@@ -10,12 +10,14 @@ fn load_graph<R>(source: &mut BufReader<R>) -> (Graph<u64, ()>, HashMap<u64, Nod
     let mut size = String::new();
     source.read_line(&mut size).ok().expect("failed to read graph size");
 
-    let sz = size.trim().parse::<i64>().unwrap();
+    let sz = size.trim().parse::<u64>().unwrap();
     writeln!(&mut stderr(), "Graph size is {} edges. Loading...", sz).unwrap();
 
     let mut graph = Graph::<u64, ()>::new();
     let mut nodes = HashMap::new();
 
+    let mut cnt: u64 = 0;
+    let step = if sz > 100 { sz/100 } else { 1 };
     for line in source.lines() {
         let l = line.unwrap();
         let (s, e, o) = scan_fmt!(&l, "{} {} {}", u64, u64, u8);
@@ -39,7 +41,14 @@ fn load_graph<R>(source: &mut BufReader<R>) -> (Graph<u64, ()>, HashMap<u64, Nod
         if oneway != 1 {
             graph.update_edge(*ei, *si, ());
         }
+        cnt += 1;
+        // print at every 0.5% 
+        if cnt%step == 0 {
+            let quant = (cnt as f64/sz as f64)*100.0;
+            write!(&mut stderr(), "\r{}/{} {:.0}%", cnt, sz, quant).unwrap();
+        }
     }
+    writeln!(&mut stderr(), "").unwrap();
 
     (graph, nodes)
 }
