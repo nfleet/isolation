@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["compute","Computes the strongly connected components. Takes a graph stream as an input where the format is as follows:"],["serialize","Serializes the contents of the component into a stream where each node is separated by `delim`. Panics if target cannot be opened."]]});
