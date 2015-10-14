@@ -23,10 +23,6 @@ fn load_graph<R>(source: &mut BufReader<R>) -> (Graph<u64, ()>, HashMap<u64, Nod
         let (s, e, o) = scan_fmt!(&l, "{} {} {}", u64, u64, u8);
         let (start, end, oneway) = (s.unwrap(), e.unwrap(), o.unwrap());
 
-        if start == end {
-            continue
-        }
-
         // adding a node erases the index, so for each unique index we need to keep
         // a map of the corresponding node <-> internal node id mappings. shitty,
         // but it seems to work.
